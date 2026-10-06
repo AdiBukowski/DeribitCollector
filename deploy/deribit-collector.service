@@ -1,0 +1,28 @@
+[Unit]
+Description=Deribit L2 market data collector
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/mnt/usb
+
+[Service]
+Type=simple
+User=collector
+Group=collector
+ExecStart=/opt/deribit-collector/deribit_collector --out /mnt/usb/deribit-data --flush-seconds 15 --stats-path /run/deribit-collector/stats.json
+RuntimeDirectory=deribit-collector
+Restart=always
+RestartSec=10
+# SIGTERM -> graceful shutdown: open hourly files are finished and renamed.
+KillSignal=SIGTERM
+TimeoutStopSec=60
+Nice=-5
+LimitNOFILE=65536
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/mnt/usb/deribit-data
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

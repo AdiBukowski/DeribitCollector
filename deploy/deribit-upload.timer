@@ -1,0 +1,11 @@
+[Unit]
+Description=Hourly upload of Deribit collector files
+
+[Timer]
+# Files rotate at :00 UTC; upload after they are 10 minutes old.
+OnCalendar=*-*-* *:15:00
+Persistent=true
+RandomizedDelaySec=120
+
+[Install]
+WantedBy=timers.target

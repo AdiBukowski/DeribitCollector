@@ -1,0 +1,19 @@
+[Unit]
+Description=Upload finished Deribit hourly files and delete local copies
+Wants=network-online.target
+After=network-online.target
+RequiresMountsFor=/mnt/usb
+
+[Service]
+Type=oneshot
+User=collector
+Group=collector
+# Only finished files (*.jsonl.zst, never *.part) older than 10 minutes are moved.
+# Set REMOTE in /etc/default/deribit-upload, e.g. REMOTE=b2:my-bucket/deribit
+EnvironmentFile=/etc/default/deribit-upload
+ExecStart=/usr/bin/rclone move /mnt/usb/deribit-data/deribit ${REMOTE} \
+	--include "*.jsonl.zst" --min-age 10m \
+	--checksum --transfers 2 --retries 5 --low-level-retries 10 \
+	--delete-empty-src-dirs --log-level INFO
+Nice=10
+IOSchedulingClass=idle
